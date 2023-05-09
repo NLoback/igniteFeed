@@ -1,3 +1,5 @@
+import { Avatar } from './Avatar'
+import { Comment } from './Comment'
 import styles from './Post.module.css'
 
 export function Post(){
@@ -5,8 +7,8 @@ export function Post(){
         <article className={styles.post}>
             <header>
                 <div className={styles.author}>
-                    <img 
-                    className={styles.avatar}
+                    <Avatar
+                    hasBorder
                     src="https://pps.whatsapp.net/v/t61.24694-24/223253605_1553468925076275_3801217370321793839_n.jpg?ccb=11-4&oh=01_AdSnpyUxXV2asF46jPVKoSZE0wMOH_ClHZQd8BPGB9Qy6w&oe=6465379E"/>
                     <div className={styles.authorInfo}>
                         <strong>Felipe Severino</strong>
@@ -33,6 +35,13 @@ export function Post(){
                         <button type='submit'>Publicar</button>
                     </footer>
                 </form>
+
+                <div className={styles.commentList}>
+                    <Comment/>
+                    <Comment/>
+                    <Comment/>
+                </div>
+
             </article>
     )
 

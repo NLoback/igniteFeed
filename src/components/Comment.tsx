@@ -4,11 +4,14 @@ import { Avatar } from './Avatar';
 
 interface commentProps {
     content: string
+    onDeleteComment: (commentID: number) => void
+    id: number
 }
 
-export function Comment({content}:commentProps) {
-    fucntion handleDeleteComment(){
-        
+
+export function Comment({content, onDeleteComment, id}: commentProps) {
+    function handleDeleteComment(){
+        onDeleteComment(id)
     }
 
     return (

@@ -1,35 +1,58 @@
-import { useState } from 'react'
+import { ChangeEvent, FormEvent, InvalidEvent, useState } from 'react'
 import { Avatar } from './Avatar'
 import { Comment } from './Comment'
 import styles from './Post.module.css'
 import {  format, formatDistanceToNow} from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 
+interface Author {
+    name: string;
+    avatarUrl: string;
+    role: string;
+}
 
+interface Content {
+    type: 'paragraph' | 'link';
+    content: string;
+}
 
-export function Post({author, publishedAt, content}: any) {
+export interface PostType{
+    id: number;
+    author: Author;
+    publishedAt: Date;
+    content: Content[ ];
+}
+
+export interface PostProps {
+  post: PostType;
+}
+
+export function Post({post}: PostProps) {
     const [comments, setComments] = useState([
-       {
-        id: 0,
-        commentText: "Meteu essa Maluco",
-       },
-    ])
-    const [newCommentText, setNewCommentText] = useState('')
+        {
+            id: 0,
+            commentText: "Meteu essa Maluco",
+        },
+     ]
+ )
 
-    const publishedDateFormatted = format(publishedAt, "d 'de' LLLL 'às' HH:mm'h'", {locale: ptBR})
-    const publishedDateRelativeToNow = formatDistanceToNow(publishedAt, {
+    const [newCommentText, setNewCommentText] = useState('')
+    const publishedDateFormatted = format(post.publishedAt, "d 'de' LLLL 'às' HH:mm'h'", {locale: ptBR})
+
+    const publishedDateRelativeToNow = formatDistanceToNow(post.publishedAt, {
         locale: ptBR,
         addSuffix: true
     } )
 
-    function handleCreateNewComment (event: any) {
+    function handleCreateNewComment (event:  FormEvent) {
         event.preventDefault()
         setComments([...comments, {id: comments.length, commentText: newCommentText}])
         setNewCommentText('')
         
     }
 
-    function handleNewCommentChange( event: any ) {
+    function handleNewCommentChange( event:  ChangeEvent<HTMLTextAreaElement> ) {
+        event.target.setCustomValidity('')
         setNewCommentText(event.target.value)
     }
 
@@ -39,28 +62,29 @@ export function Post({author, publishedAt, content}: any) {
         setComments(newComments)
     }
 
-
-
+    function handleNewCommentInvalid(event:  InvalidEvent<HTMLTextAreaElement>) {
+        event.target.setCustomValidity('Escreva um comentário')
+    }
     return (
         <article className={styles.post}>
             <header>
                 <div className={styles.author}>
                     <Avatar 
-                        src={author.avatarUrl}
+                        src={post.author.avatarUrl}
                     />
                     <div className={styles.authorInfo}>
-                        <strong>{author.name}</strong>
-                        <span>{author.role}</span>
+                        <strong>{post.author.name}</strong>
+                        <span>{post.author.role}</span>
                     </div>
                 </div>
-                <time title={publishedDateFormatted} dateTime={publishedAt.toISOString()} >{publishedDateRelativeToNow}</time>
+                <time title={publishedDateFormatted} dateTime={post.publishedAt.toISOString()} >{publishedDateRelativeToNow}</time>
             </header>
             <div className={styles.content}>
-                {content.map((i:{type:string, content: string}) => {
-                    if(i.type === 'paragraph')
-                        return <p key={i.content} >{i.content}</p>
-                    else if (i.type === 'link')
-                        return <a key={i.content} href='#'>{i.content}</a>
+                {post.content.map((line) => {
+                    if(line.type === 'paragraph')
+                        return <p key={line.content} >{line.content}</p>
+                    else if (line.type === 'link')
+                        return <a key={line.content} href='#'>{line.content}</a>
                     })}
             </div>
 
@@ -72,13 +96,15 @@ export function Post({author, publishedAt, content}: any) {
                     name='comment'
                     onChange={handleNewCommentChange}
                     value={newCommentText}
-                    placeholder='Comente aqui'></textarea>
-                    
+                    placeholder='Comente aqui'
+                    onInvalid={handleNewCommentInvalid}
+                    required
+                    ></textarea>
                 <footer>
-                    <button type='submit'>Publicar</button>
+                    <button type='submit' disabled={newCommentText.length === 0}>Publicar</button>
                 </footer>
             </form>
-
+    
             <div className={styles.commentList}>
                 {comments.map(comment=>{
                     return(
@@ -90,9 +116,7 @@ export function Post({author, publishedAt, content}: any) {
                         />
                         ) 
                     })}
-
             </div>
-
         </article>
     )
 
